@@ -5,8 +5,6 @@ if (!isset($_SESSION['pegawai'])) {
     $_SESSION['pegawai'] = [];
 }
 
-$success = false;
-
 // Tambah atau Edit
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nama = $_POST['nama'];
@@ -21,10 +19,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (isset($_POST['edit_index'])) {
         $_SESSION['pegawai'][$_POST['edit_index']] = $data;
-        $success = 'edit';
+        header("Location: ".$_SERVER['PHP_SELF']."?status=edit");
+        exit;
     } else {
         $_SESSION['pegawai'][] = $data;
-        $success = 'add';
+        header("Location: ".$_SERVER['PHP_SELF']."?status=add");
+        exit;
     }
 }
 
@@ -33,7 +33,8 @@ if (isset($_GET['hapus'])) {
     $i = $_GET['hapus'];
     unset($_SESSION['pegawai'][$i]);
     $_SESSION['pegawai'] = array_values($_SESSION['pegawai']);
-    $success = 'delete';
+    header("Location: ".$_SERVER['PHP_SELF']."?status=delete");
+    exit;
 }
 ?>
 <!DOCTYPE html>
@@ -250,18 +251,20 @@ if (isset($_GET['hapus'])) {
         }
 
         window.onload = function() {
-            // Restore dark mode
             if (localStorage.getItem('darkmode') === '1') {
                 document.body.classList.add('dark');
             }
 
-            <?php if ($success == 'add'): ?>
-            Swal.fire('Berhasil!', 'Data pegawai berhasil ditambahkan.', 'success');
-            <?php elseif ($success == 'edit'): ?>
-            Swal.fire('Diperbarui!', 'Data pegawai berhasil diubah.', 'success');
-            <?php elseif ($success == 'delete'): ?>
-            Swal.fire('Dihapus!', 'Data pegawai berhasil dihapus.', 'success');
-            <?php endif; ?>
+            const urlParams = new URLSearchParams(window.location.search);
+            const status = urlParams.get('status');
+
+            if (status === 'add') {
+                Swal.fire('Berhasil!', 'Data pegawai berhasil ditambahkan.', 'success');
+            } else if (status === 'edit') {
+                Swal.fire('Diperbarui!', 'Data pegawai berhasil diubah.', 'success');
+            } else if (status === 'delete') {
+                Swal.fire('Dihapus!', 'Data pegawai berhasil dihapus.', 'success');
+            }
         };
     </script>
 </body>
